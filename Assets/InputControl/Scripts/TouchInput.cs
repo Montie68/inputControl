@@ -48,8 +48,7 @@ public class TouchInput : InputControl
         if (Input.touchCount > 0)
         {
             theTouch = Input.GetTouch(0);
-            Debug.Log( theTouch.phase.ToString());
-            if (theTouch.phase == TouchPhase.Began)
+           if (theTouch.phase == TouchPhase.Began)
             {
                 moveData.firstTouch = Camera.main.ScreenToWorldPoint(VScreen);
             }
