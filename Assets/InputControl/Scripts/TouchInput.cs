@@ -9,6 +9,7 @@ public class TouchInput : InputControl
 
     #region Public
     //public members go here
+    
     public event EventHandler<directionMoveArgs> OnSwipe;
     public event EventHandler<pinchMoveArgs> OnPinch;
     public event EventHandler OnPress;
@@ -37,6 +38,7 @@ public class TouchInput : InputControl
     private locationMoveData moveData = new locationMoveData();
     private locationMoveData[] pinchData = { new locationMoveData(), new locationMoveData() };
 
+    private bool pinchHasFinished = true;
     #endregion
     // Place all unity Message Methods here like OnCollision, Update, Start ect. 
     #region Unity Messages 
@@ -63,7 +65,7 @@ public class TouchInput : InputControl
 
             if (theTouchs[0].phase == TouchPhase.Began)
             {
-
+                pinchHasFinished = false;
                 // get the touch began and store the touch location
                 pinchData[0].firstTouch = theTouchs[0].position;
             }
@@ -87,7 +89,7 @@ public class TouchInput : InputControl
             }
 
         }
-        else if(Input.touchCount == 1 )
+        else if(Input.touchCount == 1 && pinchHasFinished)
         {
             // get the touch data if one finger is touching the screen
             theTouch = Input.GetTouch(0);
@@ -170,6 +172,7 @@ public class TouchInput : InputControl
     public void Touch_Pinch(object sender, pinchMoveArgs e)
     {
         Debug.Log("Touch Pinch! " + e.direction);
+        StartCoroutine(PinchReset());
     }
     public IEnumerator SwipeRest()
     {
@@ -177,11 +180,11 @@ public class TouchInput : InputControl
         yield return new WaitForSeconds(swipeDeley);
         swipeDirection = SWIPEDIRECTION.NONE;
     }
-    public IEnumerator SwipePinch()
+    public IEnumerator PinchReset()
     {
         // wait before resetting the swipedirection 
         yield return new WaitForSeconds(swipeDeley);
-        
+        pinchHasFinished = true;
     }
     #endregion
     /**********************************************************/
