@@ -309,7 +309,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f68d09450bc01fe44ad738cacc432aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  touchPressTime: 0.5
   minimumSwipeDistance: 3
+  swipeDeley: 0.5
+  mouseTesting: 0
   swipeDirection: 0
 --- !u!1 &1999740930
 GameObject:
