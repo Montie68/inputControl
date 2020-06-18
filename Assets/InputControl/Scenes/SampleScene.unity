@@ -311,6 +311,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   touchPressTime: 0.5
   minimumSwipeDistance: 3
+  minimumPinchDistance: 1
   swipeDeley: 0.5
   mouseTesting: 0
   swipeDirection: 0
