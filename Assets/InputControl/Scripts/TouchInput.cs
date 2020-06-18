@@ -61,14 +61,15 @@ public class TouchInput : InputControl
 
             theTouchs[1] = Input.GetTouch(1);
 
-            if (theTouchs[0].phase == TouchPhase.Began && theTouchs[1].phase == TouchPhase.Began)
+            if (theTouchs[0].phase == TouchPhase.Began)
             {
 
                 // get the touch began and store the touch location
                 pinchData[0].firstTouch = theTouchs[0].position;
-
+            }
+            if (theTouchs[1].phase == TouchPhase.Began)
+            {
                 pinchData[1].firstTouch = theTouchs[1].position;
-
             }
             else if (theTouchs[0].phase == TouchPhase.Ended || theTouchs[1].phase == TouchPhase.Ended)
             {
