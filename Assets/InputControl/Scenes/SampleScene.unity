@@ -258,6 +258,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Camera: {fileID: 963194227}
   cube: {fileID: 1860328233}
+  cursor: {fileID: 5329019584541089703, guid: 6d62b2d9887a59445942a0e0405bc419, type: 3}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,8 +356,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   touchPressTime: 0.5
-  minimumSwipeDistance: 3
-  minimumPinchDistance: 1
+  minimumSwipeDistance: 1.5
+  minimumPinchDistance: 200
   swipeDeley: 0.5
   mouseTesting: 0
   swipeDirection: 0
@@ -548,8 +549,8 @@ MonoBehaviour:
     selectedImage: {fileID: 2800000, guid: 17117a429b08e7e43b0b6c8421de69fe, type: 3}
     reporterScrollerSkin: {fileID: 11400000, guid: 1cc68832d00d3284a9324a4dc05be753,
       type: 2}
-  size: {x: 32, y: 32}
-  maxSize: 20
+  size: {x: 64, y: 64}
+  maxSize: 10
   numOfCircleToShow: 1
   Initialized: 0
 --- !u!4 &1999740933
