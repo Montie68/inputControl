@@ -21,7 +21,7 @@ public class TouchInput : InputControl
     public float minimumPinchDistance = 1f;
     // deley before restting the swipe direction
     public float swipeDeley = 0f;
-
+    public bool useCardinalDirectionForSwipe = true;
     [Header("Debug Settings")]
     public bool mouseTesting = false;
     [Header("* Remember to disable before building to device")]
@@ -117,10 +117,10 @@ public class TouchInput : InputControl
                 // get the distance the finger moved between the first and last touch.
                 float distance = Vector3.Distance(moveData.firstTouch, moveData.lastTouch);
                 // check if it moved over the mimimum distance
-                if (distance > minimumSwipeDistance*100)
+                if (distance > minimumSwipeDistance)
                 {
                     // then invoke the Onswipe event.
-                    OnSwipe?.Invoke(this, new directionMoveArgs(moveData));
+                    OnSwipe?.Invoke(this, new directionMoveArgs(moveData, useCardinalDirectionForSwipe));
                     // zero data
                     moveData.zero();
 
@@ -171,14 +171,12 @@ public class TouchInput : InputControl
     public void Touch_OnSwipe(object sender, directionMoveArgs e)
     {
         // add logic to handle the touch swipe here
-        Debug.Log("Touch Swipe! " + e.direction);
         swipeDirection = e.direction;
         // the time deley before resetting the swipeDirection -1 doesn't reset the swipe
         if (swipeDeley > -1) StartCoroutine(SwipeRest());
     }
     public void Touch_Pinch(object sender, pinchMoveArgs e)
     {
-        Debug.Log("Touch Pinch! " + e.direction);
         StartCoroutine(PinchReset(e));
     }
     public IEnumerator SwipeRest()
@@ -219,24 +217,24 @@ public class TouchInput : InputControl
         if (Input.GetMouseButtonDown(0))
             {
             // get the mouse down and store the touch location
-                moveData.firstTouch = Camera.main.ScreenToWorldPoint(VScreen);
+                moveData.firstTouch = Camera.main.ScreenToWorldPoint(VScreen) * -1;
 
             }
             else if (Input.GetMouseButtonUp(0))
             {
             // get the mouse up and store the touch location
 
-            moveData.lastTouch = Camera.main.ScreenToWorldPoint(VScreen);
+            moveData.lastTouch = Camera.main.ScreenToWorldPoint(VScreen) * -1; 
 
             }
        // get the distance between the first touch and the last touch
         float dist = Vector3.Distance(moveData.firstTouch, moveData.lastTouch);
         
         // if touch is greater than the minimum distance to classify as a swipe 
-        if (dist > minimumSwipeDistance)
+        if (dist > minimumSwipeDistance/50 && moveData.lastTouch != Vector2.zero)
         {
             // then invoke the Onswipe event.
-            OnSwipe?.Invoke(this, new directionMoveArgs(moveData));
+            OnSwipe?.Invoke(this, new directionMoveArgs(moveData, useCardinalDirectionForSwipe));
             // zero data
             moveData.zero();
         }
@@ -246,171 +244,4 @@ public class TouchInput : InputControl
 
     #endregion
 
-}
-
-// enum of swipe direction
-public enum SWIPEDIRECTION
-{
-    NONE = default,
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-}
-public enum PINCHDIRECTION
-{
-    NONE = default,
-    IN,
-    OUT,
-}
-// class to store the first and last touch points then 
-[Serializable]
-public class locationMoveData
-{
-    public Vector2 firstTouch;
-    public Vector2 lastTouch;
-    public locationMoveData()
-    {
-        // zero the data on new 
-        zero();
-    }
-
-    // zero the touch vectors when called
-    public void zero()
-    {
-        firstTouch = Vector2.zero;
-        lastTouch = Vector2.zero;
-    }
-}
-
-public class directionMoveArgs : EventArgs
-{
-    // public getter of the direction
-    public SWIPEDIRECTION direction
-    {
-        get
-        {
-            return _direction;
-        }
-    }
-    // vectors to hold the touch locations
-    Vector2 firstTouch;
-    Vector2 lastTouch;
-    // direction of the swipe
-    private readonly SWIPEDIRECTION _direction;
-
-    public directionMoveArgs(locationMoveData moveData)
-    {
-        // assign the vectors from the passed movedate to the local vectors
-        firstTouch = moveData.firstTouch;
-        lastTouch = moveData.lastTouch;
-
-        float angle = calcAngle();
-
-        if ((angle >= 0 && angle < 45) || (angle<=360 && angle > 315))
-        {
-            _direction = SWIPEDIRECTION.RIGHT;
-        }
-        else if (angle >= 45 && angle < 135)
-        {
-            _direction = SWIPEDIRECTION.UP;
-        }
-        else if (angle >= 135 && angle < 225)
-        {
-            _direction = SWIPEDIRECTION.LEFT;
-        }
-        else if (angle >= 225 && angle <= 315)
-        {
-            _direction = SWIPEDIRECTION.DOWN;
-        }
-
-    }
-
-    private float calcAngle()
-    {
-        Vector2 direction = lastTouch - firstTouch;
-        float Angle = 0;
-
-        if (direction.x == 0) direction.x = 0.001f;
-        Angle = Mathf.Atan(direction.x / direction.y) * Mathf.Rad2Deg;
-
-
-        // using trig 0 deg is x+ y0, sp 90deg is x0 y+ etc. so goes counter-clockwise
-        if (direction.x >= 0 && direction.y >= 0)
-        {
-            // first quadrant use any sign
-            Angle = Mathf.Atan(direction.y / direction.x) * Mathf.Rad2Deg;
-
-        }
-        else if (direction.x < 0 && direction.y >= 0)
-        {
-            Angle = Mathf.Atan(direction.x / direction.y) * Mathf.Rad2Deg;
-
-            // second quadrant sin is positve
-            Angle = -1 * Angle + 90;
-
-        }
-        else if (direction.x < 0 && direction.y < 0)
-        {
-            Angle = Mathf.Atan(direction.y / direction.x) * Mathf.Rad2Deg;
-
-            // third quadrant tan is positive
-            Angle += 180;
-
-        }
-        else if (direction.x >= 0 && direction.y < 0)
-        {
-            Angle = Mathf.Atan(direction.x / direction.y) * Mathf.Rad2Deg;
-
-            // fourth quadrant cos is positive
-            Angle = -1 * Angle + 270;
-
-        }
-        return Angle;
-    }
-}
-public class pinchMoveArgs : EventArgs
-{
-    // public getter of the direction
-    public PINCHDIRECTION direction
-    {
-        get
-        {
-            return _direction;
-        }
-    }
-    // vectors to hold the touch locations
-    Vector2[] firstTouch =  new Vector2[2];
-    Vector2[] lastTouch = new Vector2[2];
-
-    // direction of the swipe
-    private PINCHDIRECTION _direction;
-
-    public pinchMoveArgs(locationMoveData[] moveData)
-    {
-        // assign the vectors from the passed movedate to the local vectors
-        firstTouch[0] = moveData[0].firstTouch;
-        lastTouch[0] = moveData[0].lastTouch;
-        firstTouch[1] = moveData[1].firstTouch;
-        lastTouch[1] = moveData[1].lastTouch;
-        float firstMag, lastMag;
-
-            firstMag = Vector2.Distance(firstTouch[0], firstTouch[1]);
-            lastMag = Vector2.Distance(lastTouch[0], lastTouch[1]);
-
-        // pinch distance test
-        if (firstMag > lastMag)
-        {
-            _direction = PINCHDIRECTION.IN;
-        }
-        else if (lastMag > firstMag)
-        {
-            _direction = PINCHDIRECTION.OUT;
-        }
-    }
-
-    public void Rest()
-    {
-        _direction = PINCHDIRECTION.NONE;
-    }
 }
